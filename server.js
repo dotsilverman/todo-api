@@ -13,10 +13,12 @@ app.get('/', function (request, response) {
 	response.send('Todo API Root');
 });
 
+// GET /todoes
 app.get('/todos', function (request, response) {
 	response.json(todos);
 });
 
+// GET /todos/:id
 app.get('/todos/:id', function (request, response) {
 	var todoId = parseInt(request.params.id, 10);
 	var matchedTodo = _.findWhere(todos, {id: todoId}); 
@@ -28,7 +30,7 @@ app.get('/todos/:id', function (request, response) {
 	}
 });
 
-// add a todo item
+// POST /todos, add a todo item
 app.post('/todos', function (request, response) {
 	//var body = request.body;
 	var body = _.pick(request.body, 'description', 'completed');
@@ -50,6 +52,19 @@ app.post('/todos', function (request, response) {
 	console.log('description: ' + body.description);
 
 	response.json(body);
+});
+
+// DELETE /todos/:id
+app.delete('/todos/:id', function (request, response) {
+	var todoId = parseInt(request.params.id, 10);
+	var matchedTodo = _.findWhere(todos, {id: todoId});
+
+	if (!matchedTodo) {
+		response.status(404).json({"error": "no todo found with that id"});
+	} else {
+		todos = _.without(todos, matchedTodo);
+		response.json(matchedTodo);
+	}
 });
 
 app.listen(PORT, function () {
