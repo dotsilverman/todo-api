@@ -90,35 +90,34 @@ app.delete('/todos/:id', function(request, response) {
 // PUT /todos/:id, update items
 app.put('/todos/:id', function(request, response) {
 	var todoId = parseInt(request.params.id, 10);
-	var matchedTodo = _.findWhere(todos, {
-		id: todoId
-	});
 	var body = _.pick(request.body, 'description', 'completed');
-	var validAttributes = {};
-
-	if (!matchedTodo) {
-		return response.status(404).send();
-	}
+	var attributes = {};
 
 	// validate item's 'completed' attribute
-	if (body.hasOwnProperty('completed') && _.isBoolean(body.completed)) {
-		validAttributes.completed = body.completed;
-	} else if (body.hasOwnProperty('completed')) {
-		return response.status(400).send();
+	if (body.hasOwnProperty('completed')) {
+		attributes.completed = body.completed;
 	}
 
 	// validate item's 'description' attribute
-	if (body.hasOwnProperty('description') && _.isString(body.description) &&
-		body.description.trim().length > 0) {
-		validAttributes.description = body.description;
-	} else if (body.hasOwnProperty('description')) {
-		return response.status(400).send();
+	if (body.hasOwnProperty('description')) {
+		attributes.description = body.description;
 	}
 
-	// make the update
-	_.extend(matchedTodo, validAttributes);
-	response.json(matchedTodo);
-
+	// if findById works, first function fired
+	// if findById fails, second chained function
+	db.todo.findById(todoId).then(function(todo) {
+		if (todo) {
+			todo.update(attributes).then(function(todo) {
+				response.json(todo.toJSON());
+			}, function(e) {
+				response.status(400).send();
+			});
+		} else {
+			response.status(404).send();
+		}
+	}, function() {
+		response.status(500).send();
+	});
 });
 
 // start the server
