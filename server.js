@@ -70,29 +70,29 @@ app.post('/todos', function(request, response) {
 app.delete('/todos/:id', function(request, response) {
 	var todoId = parseInt(request.params.id, 10);
 	db.todo.findById(todoId).then(function(todo) {
-		if (!!todo) {
-			todo.destroy();
-		} else {
-			response.status(404).send();
-		},
-		function(e) {
+			if (!!todo) {
+				todo.destroy();
+			} else {
+				response.status(404).send();
+			}
+		}, function(e) {
 			response.status(500).send();
 		}
 	});
 
-	// var todoId = parseInt(request.params.id, 10);
-	// var matchedTodo = _.findWhere(todos, {
-	// 	id: todoId
-	// });
-	//
-	// if (!matchedTodo) {
-	// 	response.status(404).json({
-	// 		"error": "no todo found with that id"
-	// 	});
-	// } else {
-	// 	todos = _.without(todos, matchedTodo);
-	// 	response.json(matchedTodo);
-	// }
+// var todoId = parseInt(request.params.id, 10);
+// var matchedTodo = _.findWhere(todos, {
+// 	id: todoId
+// });
+//
+// if (!matchedTodo) {
+// 	response.status(404).json({
+// 		"error": "no todo found with that id"
+// 	});
+// } else {
+// 	todos = _.without(todos, matchedTodo);
+// 	response.json(matchedTodo);
+// }
 });
 
 // PUT /todos/:id, update items
