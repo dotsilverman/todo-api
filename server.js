@@ -85,31 +85,6 @@ app.delete('/todos/:id', function(request, response) {
 	}, function(e) {
 		response.status(500).send();
 	});
-
-	// db.todo.findById(todoId).then(function(todo) {
-	// 		if (!!todo) {
-	// 			response.json(todo.destroy());
-	// 		} else {
-	// 			response.status(404).send();
-	// 		}
-	// 	}, function(e) {
-	// 		response.status(500).send();
-	// 	}
-	// });
-
-	// var todoId = parseInt(request.params.id, 10);
-	// var matchedTodo = _.findWhere(todos, {
-	// 	id: todoId
-	// });
-	//
-	// if (!matchedTodo) {
-	// 	response.status(404).json({
-	// 		"error": "no todo found with that id"
-	// 	});
-	// } else {
-	// 	todos = _.without(todos, matchedTodo);
-	// 	response.json(matchedTodo);
-	// }
 });
 
 // PUT /todos/:id, update items
