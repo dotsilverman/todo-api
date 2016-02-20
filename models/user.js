@@ -16,5 +16,13 @@ module.exports = function(sequelize, DataTypes) {
                 is: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}/g
             }
         }
+    }, {
+        hooks: {
+            beforeValidate: function(user, options) {
+                if (typeof user.email === 'string') {
+                    user.email = user.email.toLowerCase();
+                }
+            }
+        }
     });
 };
