@@ -6,10 +6,21 @@ exports a db object which has todo model, sequelize instance, and sequelize libr
 */
 
 var Sequelize = require('sequelize');
-var sequelize = new Sequelize(undefined, undefined, undefined, {
-    'dialect': 'sqlite',
-    'storage': __dirname + '/data/dev-todo-api.sqlite'
-});
+var env = process.env.NODE_ENV || 'development';
+var sequelize;
+
+// environment variables
+// if env = production, run on heroku, else, run in sqlite database
+if (env === 'production') {
+    sequelize = new Sequelize(process.env.DATABASE_URL, {
+        dialect: 'postgres'
+    });
+} else {
+    sequelize = new Sequelize(undefined, undefined, undefined, {
+        'dialect': 'sqlite',
+        'storage': __dirname + '/data/dev-todo-api.sqlite'
+    });
+}
 
 var db = {};
 
