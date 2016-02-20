@@ -1,0 +1,50 @@
+* SECTION 65: Installing Sequelize and Sqlite
+    * review promises!
+
+    * sequelize -> http://docs.sequelizejs.com/en/latest/
+
+    * sequelize.sync() is a sequelize method that returns a promise, so we can chain a then()
+
+    * sequelize makes using sql databases wayyyyy easier
+
+    * sequelize.sync() takes your models and makes a database that looks just like them.
+
+    * __dirname = current directory file sits in
+
+    * 'storage' : __dirname + '/basic-sqlite-database.sqlite' -> creates
+        sql database in the current directory
+
+    * sequelize.sync({force: true}) will drop all tables in sql database and rewrite them
+        It's by default set to false, and will only add tables if they aren't already in the database
+
+    * ORM = "object- relation mapping". A technique of accessing a relational database from
+    an object-oriented language -> https://en.wikipedia.org/wiki/Object-relational_mapping
+
+    * http://sqlitebrowser.org/
+
+  * SECTION 66: Adding Model Validation & Fetching models
+
+    * in Sequelize documentation in left-hand column, go to API -> Model -> findById
+
+    * Todo.findAll lets you search by attribute
+
+    * $like
+
+    * %word -> % designates search for this word and doesn't matter if there are others in the string
+
+* SECTION 67:
+
+    * db.js will load all the models from sequelize and return the database
+    connection to server.js. So server.js will request database from db.js and db.js
+    will return it.
+
+    * modulde.exports can only return one thing from a file, but exporting an object
+    lets you export multiple things from a file.
+
+    * 'sequelize.import' let's you load in models from separate files
+
+    * there is a specific format for files imported with sequel
+
+    * remember we've defined body has having only a description and a completed attribute
+
+    * to unstage a file on git: > git reset HEAD filename

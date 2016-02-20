@@ -44,15 +44,15 @@ app.get('/todos', function(request, response) {
 // GET /todos/:id
 app.get('/todos/:id', function(request, response) {
 	var todoId = parseInt(request.params.id, 10);
-	var matchedTodo = _.findWhere(todos, {
-		id: todoId
-	});
-
-	if (matchedTodo) {
-		response.json(matchedTodo);
-	} else {
-		response.status(404).send();
-	}
+	// var matchedTodo = _.findWhere(todos, {
+	// 	id: todoId
+	// });
+	//
+	// if (matchedTodo) {
+	// 	response.json(matchedTodo);
+	// } else {
+	// 	response.status(404).send();
+	// }
 });
 
 // POST /todos, add a todo item
@@ -60,16 +60,12 @@ app.post('/todos', function(request, response) {
 	//var body = request.body;
 	var body = _.pick(request.body, 'description', 'completed');
 
-	// call create on db.todo
-	// for first callback, if succeeds, respond to api caller with 200 and value of todo. Will have to call .toJSON
-	// if fails, pass error object e inside object and want to send it back. Pass it into response.json(e) and updat status
-	// response.status(400).json(e)
-
 	db.todo.create(body).then(function(todo) {
-		response.status(200).json(todo);
-	}).catch(function(e) {
+		response.json(todo.toJSON());
+	}, function(e) {
 		response.status(400).json(e);
-	})
+	});
+
 
 	// // catch bad request
 	// if (!_.isBoolean(body.completed) || !_.isString(body.description) || body.description
