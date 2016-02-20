@@ -2,7 +2,7 @@
 db.js:
 ceates a new sqlite database
 loads todo model
-exports db object which has todo model, sequelize instance, and sequelize library
+exports a db object which has todo model, sequelize instance, and sequelize library
 */
 
 var Sequelize = require('sequelize');

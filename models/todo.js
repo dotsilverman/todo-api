@@ -1,6 +1,6 @@
 /*
 todo.js:
-defines a new todo model 
+defines a new todo model
 */
 module.exports = function(sequelize, DataTypes) {
     return sequelize.define('todo', {
