@@ -69,9 +69,10 @@ app.post('/todos', function(request, response) {
 // DELETE /todos/:id
 app.delete('/todos/:id', function(request, response) {
 	var todoId = parseInt(request.params.id, 10);
+
 	db.todo.findById(todoId).then(function(todo) {
 			if (!!todo) {
-				todo.destroy();
+				response.json(todo.destroy());
 			} else {
 				response.status(404).send();
 			}
