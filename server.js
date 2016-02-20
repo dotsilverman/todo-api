@@ -1,6 +1,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var _ = require('underscore');
+var db = require('./db.js');
 
 var app = express();
 var PORT = process.env.PORT || 3000;
@@ -9,24 +10,31 @@ var todoNextId = 1;
 
 app.use(bodyParser.json());
 
-app.get('/', function (request, response) {
+app.get('/', function(request, response) {
 	response.send('Todo API Root');
 });
 
 // GET /todos?completed=true&q=work
-app.get('/todos', function (request, response) {
+app.get('/todos', function(request, response) {
 	var queryParams = request.query;
 	var filteredTodos = todos;
 
-	if (queryParams.hasOwnProperty('completed') && queryParams.completed === 'true') {
-		filteredTodos = _.where(filteredTodos, {completed: true});
-	} else if (queryParams.hasOwnProperty('completed') && queryParams.completed === 'false') {
-		filteredTodos =_.where(filteredTodos, {completed: false});
+	if (queryParams.hasOwnProperty('completed') && queryParams.completed ===
+		'true') {
+		filteredTodos = _.where(filteredTodos, {
+			completed: true
+		});
+	} else if (queryParams.hasOwnProperty('completed') && queryParams.completed ===
+		'false') {
+		filteredTodos = _.where(filteredTodos, {
+			completed: false
+		});
 	}
 
 	if (queryParams.hasOwnProperty('q') && queryParams.q.length > 0) {
-		filteredTodos = _.filter(filteredTodos, function (todo) {
-			return todo.description.toLowerCase().indexOf(queryParams.q.toLowerCase()) > -1;
+		filteredTodos = _.filter(filteredTodos, function(todo) {
+			return todo.description.toLowerCase().indexOf(queryParams.q.toLowerCase()) >
+				-1;
 		});
 	}
 
@@ -34,9 +42,11 @@ app.get('/todos', function (request, response) {
 });
 
 // GET /todos/:id
-app.get('/todos/:id', function (request, response) {
+app.get('/todos/:id', function(request, response) {
 	var todoId = parseInt(request.params.id, 10);
-	var matchedTodo = _.findWhere(todos, {id: todoId}); 
+	var matchedTodo = _.findWhere(todos, {
+		id: todoId
+	});
 
 	if (matchedTodo) {
 		response.json(matchedTodo);
@@ -46,36 +56,52 @@ app.get('/todos/:id', function (request, response) {
 });
 
 // POST /todos, add a todo item
-app.post('/todos', function (request, response) {
+app.post('/todos', function(request, response) {
 	//var body = request.body;
 	var body = _.pick(request.body, 'description', 'completed');
 
-	// catch bad request
-	if (!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0) {
-		return response.status(400).send();
-	}
+	// call create on db.todo
+	// for first callback, if succeeds, respond to api caller with 200 and value of todo. Will have to call .toJSON
+	// if fails, pass error object e inside object and want to send it back. Pass it into response.json(e) and updat status
+	// response.status(400).json(e)
 
-	body.description = body.description.trim();
+	db.todo.create(body).then(function(todo) {
+		response.status(200).json(todo);
+	}).catch(function(e) {
+		response.status(400).json(e);
+	})
 
-	// add id field
-	body.id = todoNextId++;
-
-	// push body into array
-	todos.push(body);
-
-	// test with a post request and then a get request
-	console.log('description: ' + body.description);
-
-	response.json(body);
+	// // catch bad request
+	// if (!_.isBoolean(body.completed) || !_.isString(body.description) || body.description
+	// 	.trim().length === 0) {
+	// 	return response.status(400).send();
+	// }
+	//
+	// body.description = body.description.trim();
+	//
+	// // add id field
+	// body.id = todoNextId++;
+	//
+	// // push body into array
+	// todos.push(body);
+	//
+	// // test with a post request and then a get request
+	// console.log('description: ' + body.description);
+	//
+	// response.json(body);
 });
 
 // DELETE /todos/:id
-app.delete('/todos/:id', function (request, response) {
+app.delete('/todos/:id', function(request, response) {
 	var todoId = parseInt(request.params.id, 10);
-	var matchedTodo = _.findWhere(todos, {id: todoId});
+	var matchedTodo = _.findWhere(todos, {
+		id: todoId
+	});
 
 	if (!matchedTodo) {
-		response.status(404).json({"error" : "no todo found with that id"});
+		response.status(404).json({
+			"error": "no todo found with that id"
+		});
 	} else {
 		todos = _.without(todos, matchedTodo);
 		response.json(matchedTodo);
@@ -83,9 +109,11 @@ app.delete('/todos/:id', function (request, response) {
 });
 
 // PUT /todos/:id, update items
-app.put('/todos/:id', function (request, response) {
+app.put('/todos/:id', function(request, response) {
 	var todoId = parseInt(request.params.id, 10);
-	var matchedTodo = _.findWhere(todos, {id: todoId});
+	var matchedTodo = _.findWhere(todos, {
+		id: todoId
+	});
 	var body = _.pick(request.body, 'description', 'completed');
 	var validAttributes = {};
 
@@ -93,19 +121,20 @@ app.put('/todos/:id', function (request, response) {
 		return response.status(404).send();
 	}
 
-	// validate item's 'completed' attribute 
+	// validate item's 'completed' attribute
 	if (body.hasOwnProperty('completed') && _.isBoolean(body.completed)) {
 		validAttributes.completed = body.completed;
 	} else if (body.hasOwnProperty('completed')) {
 		return response.status(400).send();
-	} 
+	}
 
-	// validate item's 'description' attribute 
-	if (body.hasOwnProperty('description') && _.isString(body.description) && body.description.trim().length > 0) {
+	// validate item's 'description' attribute
+	if (body.hasOwnProperty('description') && _.isString(body.description) &&
+		body.description.trim().length > 0) {
 		validAttributes.description = body.description;
 	} else if (body.hasOwnProperty('description')) {
 		return response.status(400).send();
-	} 
+	}
 
 	// make the update
 	_.extend(matchedTodo, validAttributes);
@@ -113,6 +142,9 @@ app.put('/todos/:id', function (request, response) {
 
 });
 
-app.listen(PORT, function () {
-	console.log('Express listening on port ' + PORT + '!');
+// start the server
+db.sequelize.sync().then(function() {
+	app.listen(PORT, function() {
+		console.log('Express listening on port ' + PORT + '!');
+	});
 });
