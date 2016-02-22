@@ -49,7 +49,7 @@ module.exports = function(sequelize, DataTypes) {
                     if (typeof body.email !== 'string' ||
                         typeof body.password !==
                         'string') {
-                        return reject.status(400).send();
+                        return reject();
                     }
 
                     user.findOne({
