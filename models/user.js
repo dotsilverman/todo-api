@@ -69,25 +69,22 @@ module.exports = function(sequelize, DataTypes) {
                 return new Promise(function(resolve, reject) {
                     try {
                         var decodedJWT = jwt.verify(token, 'qwerty098');
-                        var bytes = cryptojs.AES.decrypt(decodedjwt.token,'abc123!@#');
+                        var bytes = cryptojs.AES.decrypt(decodedJWT.token,'abc123!@#');
                         var tokenData = JSON.parse(bytes.toString(cryptojs.enc.Utf8));
 
-                        user.findbyId(tokenData.id).then(
+                        user.findById(tokenData.id).then(
                             function(user) {
                                 if (user) {
                                     resolve(user);
                                 } else {
                                     reject();
-                                    console.log("id doesn't exist in database");
                                 }
                             },
                             function(e) {
                                 reject();
-                                console.log("database not properly connected");
                             });
                     } catch (e) {
                         reject();
-                        console.log("token format invalid");
                     }
                 });
             }
