@@ -19,7 +19,9 @@ app.get('/', function(request, response) {
 // GET /todos?completed=true&q=work
 app.get('/todos', middleware.requireAuthentication, function(request, response) {
 	var query = request.query;
-	var where = {};
+	var where = {
+		userId: request.user.get('id')
+	};
 
 	if (query.hasOwnProperty('completed') && query.completed == 'true') {
 		where.completed = true;
@@ -47,7 +49,13 @@ app.get('/todos/:id', middleware.requireAuthentication, function(request,
 	response) {
 	var todoId = parseInt(request.params.id, 10);
 
-	db.todo.findById(todoId).then(function(todo) {
+	// findOne instead of findById
+	db.todo.findOne({
+		where: {
+			id: todoId,
+			userId: request.user.get('id')
+		}
+	}).then(function(todo) {
 		if (!!todo) {
 			response.json(todo.toJSON());
 		} else {
@@ -78,9 +86,11 @@ app.delete('/todos/:id', middleware.requireAuthentication, function(request,
 	response) {
 	var todoId = parseInt(request.params.id, 10);
 
+	// check if user id = request.user.checkid
 	db.todo.destroy({
 		where: {
-			id: todoId
+			id: todoId,
+			userId: request.user.get('id')
 		}
 	}).then(function(rowsDeleted) {
 		if (rowsDeleted === 0) {
@@ -114,7 +124,12 @@ app.put('/todos/:id', middleware.requireAuthentication, function(request,
 
 	// if findById works, first function fired
 	// if findById fails, second chained function
-	db.todo.findById(todoId).then(function(todo) {
+	db.todo.findOne({
+		where: {
+			id: todoId,
+			userId: request.user.get('id')
+		}
+	}).then(function(todo) {
 		if (todo) {
 			todo.update(attributes).then(function(todo) {
 				response.json(todo.toJSON());
