@@ -79,7 +79,7 @@ module.exports = function(sequelize, DataTypes) {
                                 } else {
                                     reject();
                                 }
-                            },
+                            }, 
                             function(e) {
                                 reject();
                             });
