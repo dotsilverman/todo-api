@@ -1,20 +1,28 @@
+var cryptojs = require('crypto-js');
+
 module.exports = function(db) {
 
     // define pieces of middlewear we want to use in our app
     return {
         requireAuthentication: function(request, response, next) {
-            var token = request.get('Auth');
-            console.log("request token: " + token);
+            var token = request.get('Auth') || '';
 
-            // find user by token value
-            db.user.findByToken(token).then(function(user) {
-                console.log("middewear for token working so far");
-                //add user to request object. Let's us access
-                // user inside each individual request
+            // find a token in the database a user provided
+            db.token.findOne({
+                where: {
+                    tokenHash: cryptojs.MD5(token).toString()
+                }
+            }).then(function (tokenInstance) {
+                if (!tokenInstance) {
+                    throw new Error();
+                }
+
+                request.token = tokenInstance;
+                db.user.findByToken(token);
+            }).then(function (user) {
                 request.user = user;
                 next();
-            }, function() {
-                console.log("token middlewear error");
+            }).catch(function () {
                 response.status(401).send();
             });
         }
